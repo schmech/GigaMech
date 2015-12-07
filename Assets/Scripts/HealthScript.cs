@@ -47,6 +47,9 @@ public class HealthScript : MonoBehaviour
 				sprite.color = originalColor;
 			}
 		}
+
+		if (!isEnemy)
+			HealthGUIScript.instance.UpdateUIElements(hp, 3);
 	}
 	
 	public void Damage(int damageCount)	{

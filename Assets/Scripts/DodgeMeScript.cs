@@ -89,8 +89,10 @@ public class DodgeMeScript : MonoBehaviour {
 			transform.Translate(Vector3.right * topSpeed * Time.deltaTime);
 
 			// ... or end of screen
-			if (!mainRenderer.isVisible)
+			if (!mainRenderer.isVisible) {
 				Destroy(gameObject);
+				trail.transform.parent = transform.parent;
+			}
 			break;
 		}
 	}
