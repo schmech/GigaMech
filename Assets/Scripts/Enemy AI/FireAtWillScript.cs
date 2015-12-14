@@ -5,12 +5,17 @@ public class FireAtWillScript : MonoBehaviour {
 
 	public SpriteRenderer sprite;
 	public WeaponScript weapon;
+	[Header("Stage 1 - Idle")]
+	public Vector2 idleMotion;
+	public float idleSeconds;
+	[Header("Stage 2 - shooting")]
 	public Vector2 motion;
 	public float degreesPerSecond = 100f;
 	public float angleError = 5f;
 
 	private PlayerScript player;
-	private States state = States.idle;
+	private States state = States.offscreen;
+	private float idleSince;
 
 	void Start() {
 		player = FindObjectOfType<PlayerScript>();
@@ -43,43 +48,59 @@ public class FireAtWillScript : MonoBehaviour {
 
 	void Update() {
 		switch(state) {
-			case States.idle:
-				// Wait until visable
-				if (sprite.IsVisibleFrom(Camera.main))
-					state = States.shooting;
-				break;
+		case States.offscreen:
+			// Wait until visable
+			if (sprite.IsVisibleFrom(Camera.main)) {
+				state = States.idle;
+				idleSince = Time.time;
+			}
+			break;
 
-			case States.shooting:
+		case States.idle:
+			if (Time.time - idleSince >= idleSeconds)
+				state = States.shooting;
+			else
 				// Move
-				transform.position += new Vector3(motion.x, motion.y) * Time.deltaTime;
+				transform.position += new Vector3(idleMotion.x, idleMotion.y) * Time.deltaTime;
+			break;
 
-				// Destroy once no longer visable
-				if (!sprite.isVisible)
-					Destroy(gameObject);
+		case States.shooting:
+			// Move
+			transform.position += new Vector3(motion.x, motion.y) * Time.deltaTime;
 
-				// Turn the weapon towards the player
-				if (player) {
-					// Get the angle
-					Vector2 delta = player.transform.position - weapon.transform.position;
-					float targetAngle = Mathf.Atan2(delta.y, delta.x) * Mathf.Rad2Deg;
-					float angle = weapon.transform.eulerAngles.z;
+			// Destroy once no longer visable
+			if (!sprite.isVisible)
+				Destroy(gameObject);
 
-					// Modify the angle
-					angle = Mathf.MoveTowardsAngle(angle, targetAngle, degreesPerSecond * Time.deltaTime);
-					weapon.transform.rotation = Quaternion.Euler(0, 0, angle);
+			// Turn the weapon towards the player
+			if (player) {
+				/*
+				 * ROTATE THE CANNON
+				*/
+				// Get the angle
+				Vector2 delta = player.transform.position - weapon.transform.position;
+				float targetAngle = Mathf.Atan2(delta.y, delta.x) * Mathf.Rad2Deg;
+				float angle = weapon.transform.eulerAngles.z;
 
-					// Check if within firing angle
-					float diff = Mathf.DeltaAngle(angle, targetAngle);
-                    if (diff < angleError && diff > -angleError) {
-						// FIRE ZE WEAPON
-						weapon.Attack(true);
-					}
+				// Modify the angle
+				angle = Mathf.MoveTowardsAngle(angle, targetAngle, degreesPerSecond * Time.deltaTime);
+				weapon.transform.rotation = Quaternion.Euler(0, 0, angle);
+				
+				/*
+				 * FIRE THE WEAPON
+				*/
+				// Check if within firing angle
+				float diff = Mathf.DeltaAngle(angle, targetAngle);
+                if (diff < angleError && diff > -angleError) {
+					// FIRE ZE WEAPON
+					weapon.Attack(true);
 				}
-				break;
+			}
+			break;
 		}
 	}
 
 	enum States {
-		idle, shooting
+		offscreen, idle, shooting
 	}
 }

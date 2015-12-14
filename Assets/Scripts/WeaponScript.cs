@@ -38,9 +38,9 @@ public class WeaponScript : MonoBehaviour
 			var shotTransform = Instantiate(shotPrefab) as Transform;
 			
 			// Assign position
-			shotTransform.position = transform.position;
+			shotTransform.position = transform.position - Vector3.forward;
 			
-			// The is enemy property
+			// The isenemy property
 			ShotScript shot = shotTransform.gameObject.GetComponent<ShotScript>();
 			if (shot != null)
 			{

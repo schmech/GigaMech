@@ -9,6 +9,7 @@ public class SpecialEffectsHelper : MonoBehaviour
 	
 	public ParticleSystem smokeEffect;
 	public ParticleSystem fireEffect;
+	public GameObject kaboom;
 	
 	void Awake()
 	{
@@ -24,6 +25,7 @@ public class SpecialEffectsHelper : MonoBehaviour
 	
 	public void Explosion(Vector3 position)
 	{
+		/*
 		// Smoke on the water
 		instantiate(smokeEffect, position);
 		
@@ -31,6 +33,10 @@ public class SpecialEffectsHelper : MonoBehaviour
 		
 		// Fire in the sky
 		instantiate(fireEffect, position);
+		*/
+
+		
+		Instantiate(kaboom, position, Quaternion.Euler(0,0,Random.Range(0,360)));
 	}
 	
 	

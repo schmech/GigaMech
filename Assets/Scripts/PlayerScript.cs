@@ -53,10 +53,4 @@ public class PlayerScript : MonoBehaviour {
 	
 	}
 
-	void OnDestroy () {
-
-		if (transform != null)
-			transform.parent.gameObject.AddComponent<GameOverScript> ();
-	}
-
 }

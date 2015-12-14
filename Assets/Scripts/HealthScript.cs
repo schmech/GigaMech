@@ -68,6 +68,10 @@ public class HealthScript : MonoBehaviour
 			SoundEffectsHelper.Instance.MakeExplosionSound();
 			// Dead!
 			Destroy(gameObject);
+
+			// GameOver GUI
+			if (!isEnemy)
+				transform.parent.gameObject.AddComponent<GameOverScript> ();
 		}
 	}
 	
