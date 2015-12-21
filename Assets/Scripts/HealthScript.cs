@@ -5,18 +5,22 @@ public class HealthScript : MonoBehaviour
 {
 	public int hp = 1;
 	public bool isEnemy = true;
+
+	[Header("Invincibility effect")]
+	
 	public float invincibilityTime = 0f;
-	[Header("Damaged effect")]
+	public bool damageIndicationOnly = false;
+
 	public SpriteRenderer sprite;
 	public Color damagedTint = new Color(1f,0f,0f,.5f);
 	public ColorHelper.ColorMode tintMode;
-	public AnimationCurve blending = new AnimationCurve(new Keyframe(0f,1f), new Keyframe(1f,0f));
+	public AnimationCurve blending = new AnimationCurve(new Keyframe(0f,0f), new Keyframe(1f,1f));
 
 	private Color originalColor;
 
 	private float damageCooldown;
 	private bool invincible {
-		get { return damageCooldown > 0f; }
+		get { return damageCooldown > 0f && !damageIndicationOnly; }
 		set { damageCooldown = value ? invincibilityTime : 0f; }
 	}
 
@@ -34,13 +38,13 @@ public class HealthScript : MonoBehaviour
 
 	void Update() {
 		// Damage cooldown, i.e. invincibility
-		if (invincible)
+		if (damageCooldown > 0)
 			damageCooldown -= Time.deltaTime;
 
 		if (sprite != null) {
-			if (invincible) {
+			if (damageCooldown > 0) {
 				// Damage effect
-				float t = Mathf.Clamp(blending.Evaluate(damageCooldown / invincibilityTime), 0f, 1f);
+				float t = Mathf.Clamp(1f-blending.Evaluate(damageCooldown / invincibilityTime), 0f, 1f);
 				sprite.color = ColorHelper.Lerp(originalColor, damagedTint, t, tintMode);
 			} else {
 				// Normal
@@ -88,17 +92,19 @@ public class HealthScript : MonoBehaviour
 				
 				// Destroy the shot
 				Destroy(shot.gameObject); // Remember to always target the game object, otherwise you will just remove the script
-			}
-			if(tag == "balloon"){
 
-				Destroy(shot.gameObject);
-				SoundEffectsHelper.Instance.MakeLifeSound();
-				Destroy(gameObject);
-
-				if(balloonLife.GetComponent<HealthScript>().hp <= 2){
-					balloonLife.GetComponent<HealthScript>().hp +=1;
+				if(tag == "balloon"){
+					
+					Destroy(shot.gameObject);
+					SoundEffectsHelper.Instance.MakeLifeSound();
+					Destroy(gameObject);
+					
+					if(balloonLife.GetComponent<HealthScript>().hp <= 2){
+						balloonLife.GetComponent<HealthScript>().hp +=1;
+					}
 				}
 			}
+
 		}
 	}
 }
